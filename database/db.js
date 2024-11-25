@@ -3,7 +3,7 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   host: process.env.DB_HOST,
-  ssl: true,
+  // ssl: true, // uncomment when using live DB
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
   database: process.env.DB_DATABASE,
