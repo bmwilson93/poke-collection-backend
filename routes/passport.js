@@ -36,7 +36,6 @@ passport.deserializeUser(async (id, done) => {
     // query the database using id to find the user
     if (id) {
       const result = await db.query(`SELECT email, username, collection FROM users JOIN collections ON users.id = collections.user_id WHERE id='${id}';`);
-      // need to also get the collection from the database and add it to the user
       let user = result.rows[0];
       done(null, user);
     }
@@ -95,7 +94,7 @@ router.post('api/register', async (req, res) => {
         'password' : hash,
       }
 
-      await addUser(newUser);
+      await addUser(newUser); // TODO, add an addUser function to db/users.js
 
       // call passport.js login function to login the new user
       req.login(newUser.email, (err) => {
