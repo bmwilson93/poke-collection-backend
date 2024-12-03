@@ -6,8 +6,18 @@ const findUser = async (email) => {
     const foundUser = result.rows[0];
     return foundUser;
   } catch (error) {
+    console.log(error);
     return null;
   }
 }
 
-module.exports = { findUser }
+const addUser = async (user) => {
+  try {
+    
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+module.exports = { findUser, addUser }
