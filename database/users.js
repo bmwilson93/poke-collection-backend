@@ -17,7 +17,7 @@ const addUser = async (user) => {
   try {
     // query to add a row to users, and a row to collections
     let newUser = await db.query(
-      'INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING email, username;',
+      'INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id, email, username;',
       [user.email, user.username, user.password]
     );
     newUser = newUser.rows[0];
@@ -27,7 +27,7 @@ const addUser = async (user) => {
       ['{"sets":[]}', newUser.id]
     );
     newUser.collection = newCollection.rows[0].collection;
-
+    delete newUser.id;
     return newUser;
   } catch (error) {
     console.log(error);
