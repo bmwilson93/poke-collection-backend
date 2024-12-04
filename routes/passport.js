@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 // add database user functions here
-const { findUser } = require('../database/users.js');
+const { findUser, addUser } = require('../database/users.js');
 
 router.use(passport.initialize());
 router.use(passport.session());
@@ -18,8 +18,9 @@ router.use(passport.authenticate('session'));
 // Serialize and Deserialize Passport
 // gets the user info and saves it to the session
 passport.serializeUser(async (user, done) => {
+  console.log('serializeing User')
   try {
-    const result = await db.query(`SELECT id FROM users WHERE email='${user}';`);
+    const result = await db.query(`SELECT id FROM users WHERE email='${user.email}';`);0
 
     let userObject = result.rows[0]
     console.log(userObject);
@@ -32,11 +33,15 @@ passport.serializeUser(async (user, done) => {
 
 // gets the user by the id and saves it to the request object
 passport.deserializeUser(async (id, done) => {
+  console.log("deseializing User")
+  console.log(id);
   try {
     // query the database using id to find the user
     if (id) {
-      const result = await db.query(`SELECT email, username, collection FROM users JOIN collections ON users.id = collections.user_id WHERE id='${id}';`);
+      const result = await db.query(`SELECT email, username, collection FROM users JOIN collections ON users.id = collections.user_id WHERE users.id='${id.id}';`);
       let user = result.rows[0];
+      console.log("User:")
+      console.log(user)
       done(null, user);
     }
   } catch (error) {
@@ -45,14 +50,18 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // username == email
-passport.use(new localStrategy(async (username, password, done) => {
+passport.use(new localStrategy({usernameField: 'email'}, async (username, password, done) => {
+  console.log("local strategy")
+  console.log(`username: ${username}, password: ${password}`)
   try {
     // if user not found, return done(null, false);
     const user = await findUser(username);
+    console.log(`after looking for user: ${user}`);
     // const emailExists = result.rows.length
     if (user) { // user found
       if (bcrypt.compareSync(password, user.password)) { // password correct
-        return done(null, user.email);
+        delete user.password;
+        return done(null, user); // changed user.email to user
       } else { //  password wrong
         return done(null, false);
       }
@@ -68,17 +77,24 @@ passport.use(new localStrategy(async (username, password, done) => {
 
 
 // ROUTES
-router.post('/api/login',
-  passport.authenticate('local', { failureRedirect: '/login' }),
+router.post('/api/login', 
+  (req, res, next) => {
+    console.log("Starting at login route:")
+    console.log(req.user);
+    next();
+  },
+  passport.authenticate('local', { failureRedirect: '/api/login' }),
   (req, res) => {
-    res.json(req.session.passport.user)
+    console.log("Running after authenticate")
+    console.log(req.user);
+    res.json(req.user)
   }
 )
 
-router.post('api/register', async (req, res) => {
+router.post('/api/register', async (req, res) => {
   const { email, username, password } = req.body;
   try {
-    const user = await findUser(username);
+    const user = await findUser(email);
     if (user) { // email already in use
       console.log('User already exists');
       res.status(400).send("Email already used!");
@@ -119,7 +135,7 @@ router.post('/api/logout', (req, res) => {
 
 router.get('/api/isloggedin', (req, res) => {
   if (req.user) {
-    res.json(req.session.passport.user);
+    res.json(req.user);
   } else {
     res.status(401).send(false);
   }
