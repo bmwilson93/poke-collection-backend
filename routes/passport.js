@@ -113,7 +113,7 @@ router.post('/api/register', async (req, res) => {
       const user = await addUser(newUser);
 
       // call passport.js login function to login the new user
-      req.login(user.email, (err) => {
+      req.login(user, (err) => {
         console.log("New user added");
         // delete newUser.password;
         console.log(user);
