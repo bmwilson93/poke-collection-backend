@@ -25,10 +25,6 @@ const checkCardInCollection = (card_id, cardsArray) => {
 // adds the card to the collection, updates the database, and returns the updated collection
 // card should be an object, with properties "set_id", and "card_id"
 const addCard = async (card, collection, user_id) => {
-
-  console.log('collection before addCard:')
-  console.log(collection)
-
   const setIndex = checkSetInCollection(card.set_id, collection.sets)
   if (setIndex < 0) {
     // add the set to the collection, then add the card to that set
@@ -61,17 +57,12 @@ const addCard = async (card, collection, user_id) => {
       'UPDATE collections SET collection = $1 WHERE user_id = $2 RETURNING collection;',
       [collection, user_id]
     );
-    console.log('returned result:')
-    console.log(result.rows[0])
     updatedCollection = result.rows[0].collection;
   } catch (error) {
     console.log(error);
   }
+  
   // return the collection object
-
-  console.log('collection after addCard:')
-  console.log(updatedCollection);
-
   return updatedCollection
 }
 
