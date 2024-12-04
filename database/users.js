@@ -17,7 +17,7 @@ const addUser = async (user) => {
   try {
     // query to add a row to users, and a row to collections
     let newUser = await db.query(
-      'INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id, email, username, password;',
+      'INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING email, username;',
       [user.email, user.username, user.password]
     );
     newUser = newUser.rows[0];
