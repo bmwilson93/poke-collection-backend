@@ -20,7 +20,10 @@ router.use(passport.authenticate('session'));
 passport.serializeUser(async (user, done) => {
   console.log('serializeing User')
   try {
-    const result = await db.query(`SELECT id FROM users WHERE email='${user.email}';`);0
+    const result = await db.query(
+      'SELECT id FROM users WHERE email=$1;',
+      [user.email]
+    );
 
     let userObject = result.rows[0]
     console.log(userObject);
@@ -38,7 +41,10 @@ passport.deserializeUser(async (id, done) => {
   try {
     // query the database using id to find the user
     if (id) {
-      const result = await db.query(`SELECT email, username, collection FROM users JOIN collections ON users.id = collections.user_id WHERE users.id='${id.id}';`);
+      const result = await db.query(
+        'SELECT email, username, collection FROM users JOIN collections ON users.id = collections.user_id WHERE users.id=$1;',
+        [id.id]
+      );
       let user = result.rows[0];
       console.log("User:")
       console.log(user)
