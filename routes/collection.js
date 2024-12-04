@@ -4,7 +4,7 @@ const express = require("express"),
 const { addCard, removeCard } = require('../database/collection.js');
 
 // Check if user is logged in first
-router.use('api/collection', (req, res, next) => {
+router.use('/', (req, res, next) => {
   if (req.user) {
     next();
   } else {
@@ -12,12 +12,14 @@ router.use('api/collection', (req, res, next) => {
   }
 })
 
-router.post('api/collection/add', (req, res) => {
- addCard(req.body, req.user.collection);
+router.post('/add', async (req, res) => {
+ req.user.collection = await addCard(req.body, req.user.collection, req.session.passport.user.id);
+ res.json(req.user);
 })
 
-router.post('api/collection/remove', (req, res) => {
-  removeCard(req.body, req.user.collection);
+router.post('/remove', async (req, res) => {
+  req.user.collection = await removeCard(req.body, req.user.collection, req.session.passport.user.id);
+  res.json(req.user);
 })
 
 module.exports = router;
