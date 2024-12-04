@@ -20,6 +20,20 @@ const checkCardInCollection = (card_id, cardsArray) => {
   return -1;
 }
 
+// Takes a collection object and a user_id, and updates the collection table for that user
+const updateCollectionInDB = async (collection, user_id) => {
+  try {
+    const result = await db.query(
+      'UPDATE collections SET collection = $1 WHERE user_id = $2 RETURNING collection;',
+      [collection, user_id]
+    );
+    return result.rows[0].collection;
+  } catch (error) {
+    console.log(`There was an error updating the collection database: ${error}`)
+    return collection;
+  }
+}
+
 
 // Takes a card object and a collection object
 // adds the card to the collection, updates the database, and returns the updated collection
@@ -61,11 +75,39 @@ const addCard = async (card, collection, user_id) => {
   } catch (error) {
     console.log(error);
   }
-  
+
   // return the collection object
   return updatedCollection
 }
 
-const removeCard = async (card, collection) => {}
+// Takes card object and collection object
+// If the set or the card id are not in the collection, returns the collection
+// Removes or decreases card, updates database, and returns the updated collection
+const removeCard = async (card, collection, user_id) => {
+  const setIndex = checkSetInCollection(card.set_id, collection.sets)
+  if (setIndex < 0) {
+    // set not in collection, just return collection
+    return collection;
+
+  } else { // set exists in collection, check if card exists
+    const cardIndex = checkCardInCollection(card.card_id, collection.sets[setIndex].cards)
+    if (cardIndex < 0) {
+      // card not is collection, just return collection
+      return collection;
+
+    } else { // card exists, decrease qty or remove if only 1
+      if (collection.sets[setIndex].cards[cardIndex].quantity > 1) {
+        collection.sets[setIndex].cards[cardIndex].quantity -= 1;
+      } else { // only 1 quantity, remove the card
+        collection.sets[setIndex].cards.splice(cardIndex, 1);
+      }
+    }
+  }
+
+  const updatedCollection = updateCollectionInDB(collection, user_id);
+  return updatedCollection;
+}
+
+
 
 module.exports = { addCard, removeCard }
