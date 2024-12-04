@@ -15,7 +15,7 @@ router.use(session({
   secret: process.env.SESSION_SECRET,
   cookie: {
     sameSite: "none",
-    secure: true
+    // secure: true
   },
   resave: false,
   saveUninitialized: false
