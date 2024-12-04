@@ -2,6 +2,15 @@ const express = require("express"),
       router = express.Router();
 
 
+// Check if user is logged in first
+router.use('api/collection', (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    res.status(401).send();
+  }
+})
+
 router.post('api/collection/add', (req, res) => {
  addCard(req.body, req.user.collection);
 })
