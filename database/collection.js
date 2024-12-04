@@ -54,30 +54,18 @@ const addCard = async (card, collection, user_id) => {
   } else { // set exists in collection, check if card exists
     const cardIndex = checkCardInCollection(card.card_id, collection.sets[setIndex].cards)
     if (cardIndex < 0) {
+      // card not in collection, add new card object to the cards array in the set object
       collection.sets[setIndex].cards.push(
         {"card_id": card.card_id, "quantity": 1}
       );
 
     } else { // set and card both exist in collection, simply increase quantity
       collection.sets[setIndex].cards[cardIndex].quantity += 1;
-
     }
   }
 
-  let updatedCollection = collection;
-  // update the database with the new collection -- will need the user_id to do that
-  try {
-    const result = await db.query(
-      'UPDATE collections SET collection = $1 WHERE user_id = $2 RETURNING collection;',
-      [collection, user_id]
-    );
-    updatedCollection = result.rows[0].collection;
-  } catch (error) {
-    console.log(error);
-  }
-
-  // return the collection object
-  return updatedCollection
+  const updatedCollection = updateCollectionInDB(collection, user_id);
+  return updatedCollection;
 }
 
 // Takes card object and collection object
