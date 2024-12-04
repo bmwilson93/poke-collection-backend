@@ -1,6 +1,7 @@
 const express = require("express"),
       router = express.Router();
 
+const { addCard, removeCard } = require('../database/collection.js');
 
 // Check if user is logged in first
 router.use('api/collection', (req, res, next) => {
