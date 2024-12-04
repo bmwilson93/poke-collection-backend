@@ -2,7 +2,8 @@ const db = require('./db');
 
 const findUser = async (email) => {
   try {
-    const result = await db.query('SELECT * FROM users WHERE email=$1;', [email]);
+    // const result = await db.query('SELECT * FROM users WHERE email=$1;', [email]);
+    const result = await db.query('SELECT email, username, password, collection FROM users JOIN collections ON users.id = collections.user_id WHERE users.email=$1;', [email]);
     const foundUser = result.rows[0];
     return foundUser;
   } catch (error) {
@@ -11,10 +12,11 @@ const findUser = async (email) => {
   }
 }
 
+// Takes a user object from the register route in passport, and queries the db to add the user and a new collection row
 const addUser = async (user) => {
   try {
     // query to add a row to users, and a row to collections
-    const newUser = await db.query(
+    let newUser = await db.query(
       'INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id, email, username, password;',
       [user.email, user.username, user.password]
     );
@@ -27,7 +29,6 @@ const addUser = async (user) => {
     newUser.collection = newCollection.rows[0].collection;
 
     return newUser;
-    
   } catch (error) {
     console.log(error);
     return null;
