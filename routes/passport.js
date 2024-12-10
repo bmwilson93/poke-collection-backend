@@ -141,9 +141,9 @@ router.post('/api/logout', (req, res) => {
 
 router.get('/api/isloggedin', (req, res) => {
   if (req.user) {
-    res.json(req.user);
+    res.status(200).json(req.user);
   } else {
-    res.status(401).send(false);
+    res.status(204).send();
   }
 })
 
