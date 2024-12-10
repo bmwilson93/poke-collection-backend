@@ -14,11 +14,12 @@ router.use(session({
   }),
   secret: process.env.SESSION_SECRET,
   cookie: {
-    sameSite: "none",
-    // secure: true
+    maxAge: 1000 * 60 * 60 * 24,
+    sameSite: "lax",
+    secure: false,
   },
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
 }));
 
 module.exports = router;
