@@ -1,12 +1,12 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+require('dotenv').config();
 app.use(cors({
   origin: process.env.CORS_ORIGIN,
   methods: ['POST', 'PUT', 'GET', 'DELETE', 'OPTIONS', 'HEAD'],
   credentials: true
 }));
-require('dotenv').config();
 
 // Router Imports
 const sessionRouter = require('./routes/session.js');
