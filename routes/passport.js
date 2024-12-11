@@ -4,6 +4,8 @@ const db = require('../database/db.js');
 const passport = require('passport');
 const localStrategy = require('passport-local').Strategy;
 
+const validator = require('validator');
+
 // Bcrypt
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -85,9 +87,28 @@ passport.use(new localStrategy({usernameField: 'email'}, async (username, passwo
 // ROUTES
 router.post('/api/login', 
   (req, res, next) => {
-    console.log("Starting at login route:")
-    console.log(req.user);
-    next();
+    console.log("Starting at login route, body:")
+    console.log(req.body);
+
+    console.log();
+
+    // trim email and password
+    validator.trim(req.body.email);
+    validator.trim(req.body.password);
+
+    // sanitize the email and password
+    req.body.email = validator.escape(req.body.email);
+    req.body.password = validator.escape(req.body.password);
+
+    // check email and password with validator
+    // if req.body.email is not email res with error
+    if (!validator.isEmail(req.body.email)) {
+      res.status(400).send();
+    } else if (validator.isEmpty(req.body.password)) {
+      res.status(400).send();
+    } else {
+      next();
+    }
   },
   passport.authenticate('local', { failureRedirect: '/api/login' }),
   (req, res) => {
