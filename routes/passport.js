@@ -118,7 +118,26 @@ router.post('/api/login',
   }
 )
 
-router.post('/api/register', async (req, res) => {
+router.post('/api/register', 
+  (req, res, next) => {
+    //sanitize input
+    req.body.email = validator.trim(validator.escape(email));
+    req.body.username = validator.trim(validator.escape(username));
+    req.body.password = validator.trim(validator.escape(password));
+
+    // check email and password with validator
+    // if req.body.email is not email res with error
+    if (!validator.isEmail(req.body.email) || !validator.isLength(req.body.email, {min: 1, max: 128})) {
+      res.status(400).send("Provided email is either too long, or not an email address.");
+    } else if (!validator.isLength(req.body.username, {min: 1, max: 64})) {
+      res.status(400).send("Provided username is either too short, or too long.");
+    } else if (validator.isLength(req.body.password, {min: 6, max: 20})) {
+      res.status(400).send('Provided password is either too short, or too long.')
+    }else {
+      next();
+    }
+  },
+  async (req, res) => {
   const { email, username, password } = req.body;
   try {
     const user = await findUser(email);
@@ -142,8 +161,6 @@ router.post('/api/register', async (req, res) => {
       // call passport.js login function to login the new user
       req.login(user, (err) => {
         console.log("New user added");
-        // delete newUser.password;
-        console.log(user);
         res.json(user);
       })
     }
