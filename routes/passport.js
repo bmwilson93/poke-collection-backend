@@ -121,9 +121,11 @@ router.post('/api/login',
 router.post('/api/register', 
   (req, res, next) => {
     //sanitize input
-    req.body.email = validator.trim(validator.escape(email));
-    req.body.username = validator.trim(validator.escape(username));
-    req.body.password = validator.trim(validator.escape(password));
+    req.body.email = validator.trim(validator.escape(req.body.email));
+    req.body.username = validator.trim(validator.escape(req.body.username));
+    req.body.password = validator.trim(validator.escape(req.body.password));
+
+    console.log(req.body)
 
     // check email and password with validator
     // if req.body.email is not email res with error
@@ -131,7 +133,7 @@ router.post('/api/register',
       res.status(400).send("Provided email is either too long, or not an email address.");
     } else if (!validator.isLength(req.body.username, {min: 1, max: 64})) {
       res.status(400).send("Provided username is either too short, or too long.");
-    } else if (validator.isLength(req.body.password, {min: 6, max: 20})) {
+    } else if (!validator.isLength(req.body.password, {min: 6, max: 20})) {
       res.status(400).send('Provided password is either too short, or too long.')
     }else {
       next();
@@ -142,7 +144,6 @@ router.post('/api/register',
   try {
     const user = await findUser(email);
     if (user) { // email already in use
-      console.log('User already exists');
       res.status(400).send("Email already used!");
     } else { // email not used, add new user
       console.log('Adding new user');
@@ -157,6 +158,9 @@ router.post('/api/register',
       }
 
       const user = await addUser(newUser);
+
+      console.log("User:")
+      console.log(user);
 
       // call passport.js login function to login the new user
       req.login(user, (err) => {
