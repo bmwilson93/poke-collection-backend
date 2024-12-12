@@ -14,7 +14,12 @@ router.use(session({
   }),
   secret: process.env.SESSION_SECRET,
   proxy: true,
-
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+    sameSite: "none",
+    secure: true,
+    httpOnly: true,
+  },
   resave: false,
   saveUninitialized: false,
 }));
