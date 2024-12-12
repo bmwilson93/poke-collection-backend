@@ -9,6 +9,8 @@ app.use(cors({
   credentials: true
 }));
 
+app.set("trust proxy", 1);
+
 // Router Imports
 const sessionRouter = require('./routes/session.js');
 const passportRouter = require('./routes/passport.js');
