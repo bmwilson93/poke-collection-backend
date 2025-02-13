@@ -201,12 +201,11 @@ router.post('/api/update-email', (req, res, next) => {
       next();
     }
   },
-  async (req, res, next) => {
+  async (req, res) => {
     try {
       const user = await findUser(req.body.email);
       if (user) {
         if (bcrypt.compareSync(req.body.password, user.password)) { // password correct
-          delete user.password;
           // Update the user's email
           const updatedUser = await updateUserEmail(user, req.body.email);
           res.status(200).json(updatedUser);
