@@ -11,7 +11,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 // add database user functions here
-const { findUser, addUser } = require('../database/users.js');
+const { findUser, addUser, updateUserEmail } = require('../database/users.js');
 
 router.use(passport.initialize());
 router.use(passport.session());
@@ -38,8 +38,8 @@ passport.serializeUser(async (user, done) => {
 
 // gets the user by the id and saves it to the request object
 passport.deserializeUser(async (id, done) => {
-  console.log("deseializing User")
-  console.log(id);
+  // console.log("deseializing User")
+  // console.log(id);
   try {
     // query the database using id to find the user
     if (id) {
@@ -59,8 +59,8 @@ passport.deserializeUser(async (id, done) => {
 
 // username == email
 passport.use(new localStrategy({usernameField: 'email'}, async (username, password, done) => {
-  console.log("local strategy")
-  console.log(`username: ${username}, password: ${password}`)
+  // console.log("local strategy")
+  // console.log(`username: ${username}, password: ${password}`)
   try {
     // if user not found, return done(null, false);
     const user = await findUser(username);
@@ -87,10 +87,10 @@ passport.use(new localStrategy({usernameField: 'email'}, async (username, passwo
 // ROUTES
 router.post('/api/login', 
   (req, res, next) => {
-    console.log("Starting at login route, body:")
-    console.log(req.body);
+    // console.log("Starting at login route, body:")
+    // console.log(req.body);
 
-    console.log();
+    // console.log();
 
     // trim email and password
     validator.trim(req.body.email);
@@ -182,18 +182,15 @@ router.post('/api/logout', (req, res) => {
 })
 
 router.post('/api/update-email', (req, res, next) => {
-    // takes new email, and pasword from request body
-    // sanitize and validate input
-    // confirm password is correct
-    // if yes, then call updateEmail from users.js (need to define)
-    // return user object with updated email
-
     //sanitize input
     req.body.email = validator.trim(validator.escape(req.body.email));
+    req.body.newEmail = validator.trim(validator.escape(req.body.newEmail));
     req.body.password = validator.trim(validator.escape(req.body.password));
 
     // check email and password with validator
     if (!validator.isEmail(req.body.email) || !validator.isLength(req.body.email, {min: 1, max: 128})) {
+      res.status(400).send("Provided email is either too long, or not an email address.");
+    } else if (!validator.isEmail(req.body.newEmail) || !validator.isLength(req.body.newEmail, {min: 1, max: 128})) {
       res.status(400).send("Provided email is either too long, or not an email address.");
     } else if (!validator.isLength(req.body.password, {min: 6, max: 20})) {
       res.status(400).send('Provided password is either too short, or too long.')
@@ -207,7 +204,7 @@ router.post('/api/update-email', (req, res, next) => {
       if (user) {
         if (bcrypt.compareSync(req.body.password, user.password)) { // password correct
           // Update the user's email
-          const updatedUser = await updateUserEmail(user, req.body.email);
+          const updatedUser = await updateUserEmail(user, req.body.newEmail);
           if (updatedUser) {
             res.status(200).json(updatedUser);
           } else {
