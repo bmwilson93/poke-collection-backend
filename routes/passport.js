@@ -181,6 +181,10 @@ router.post('/api/logout', (req, res) => {
   });
 })
 
+router.post('/api/update-email', (req, res) => {
+  res.status(200).send();
+})
+
 router.get('/api/isloggedin', (req, res) => {
   if (req.user) {
     res.status(200).json(req.user);
