@@ -181,9 +181,48 @@ router.post('/api/logout', (req, res) => {
   });
 })
 
-router.post('/api/update-email', (req, res) => {
-  res.status(200).send();
-})
+router.post('/api/update-email', (req, res, next) => {
+    // takes new email, and pasword from request body
+    // sanitize and validate input
+    // confirm password is correct
+    // if yes, then call updateEmail from users.js (need to define)
+    // return user object with updated email
+
+    //sanitize input
+    req.body.email = validator.trim(validator.escape(req.body.email));
+    req.body.password = validator.trim(validator.escape(req.body.password));
+
+    // check email and password with validator
+    if (!validator.isEmail(req.body.email) || !validator.isLength(req.body.email, {min: 1, max: 128})) {
+      res.status(400).send("Provided email is either too long, or not an email address.");
+    } else if (!validator.isLength(req.body.password, {min: 6, max: 20})) {
+      res.status(400).send('Provided password is either too short, or too long.')
+    }else {
+      next();
+    }
+  },
+  async (req, res, next) => {
+    try {
+      const user = await findUser(req.body.email);
+      if (user) {
+        if (bcrypt.compareSync(req.body.password, user.password)) { // password correct
+          delete user.password;
+          // Update the user's email
+          const updatedUser = await updateUserEmail(user, req.body.email);
+          res.status(200).json(updatedUser);
+
+        } else { //  password wrong
+          res.status(400).send("Wrong password");
+        }
+      } else {
+        res.status(400).send("No user with the provided email")
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Server Error");
+    }
+  }
+)
 
 router.get('/api/isloggedin', (req, res) => {
   if (req.user) {
