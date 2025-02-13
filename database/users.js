@@ -35,4 +35,8 @@ const addUser = async (user) => {
   }
 }
 
+const updateUserEmail = async (user, newEmail) => {
+
+}
+
 module.exports = { findUser, addUser }
