@@ -208,7 +208,11 @@ router.post('/api/update-email', (req, res, next) => {
         if (bcrypt.compareSync(req.body.password, user.password)) { // password correct
           // Update the user's email
           const updatedUser = await updateUserEmail(user, req.body.email);
-          res.status(200).json(updatedUser);
+          if (updatedUser) {
+            res.status(200).json(updatedUser);
+          } else {
+            res.status(400).send("Error with updating the email")
+          }
 
         } else { //  password wrong
           res.status(400).send("Wrong password");
