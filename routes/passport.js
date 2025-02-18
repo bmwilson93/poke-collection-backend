@@ -208,18 +208,18 @@ router.post('/api/update-email', (req, res, next) => {
           if (updatedUser) {
             res.status(200).json(updatedUser);
           } else {
-            res.status(400).send("Error with updating the email")
+            res.status(400).send("There was an error with updating your email.")
           }
 
         } else { //  password wrong
-          res.status(400).send("Wrong password");
+          res.status(400).send("Password is incorrect.");
         }
       } else {
-        res.status(400).send("No user with the provided email")
+        res.status(400).send("No user was found with the provided email.")
       }
     } catch (error) {
       console.log(error);
-      res.status(500).send("Server Error");
+      res.status(500).send("There was a servor error with updating your email.");
     }
   }
 )
