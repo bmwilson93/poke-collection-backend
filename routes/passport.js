@@ -212,6 +212,22 @@ router.post('/api/update-email',
   }
 )
 
+router.post('/api/change-password', 
+  sanitize,
+  (req, res, next) => {
+  if (!isValidPassword(req?.body?.password)) return res.status(400).send("Your password is either too short or too long.");
+  if (!isValidPassword(req?.body?.newPassword)) return res.status(400).send("Your new password is either too short or too long.");
+  next();
+  },
+  async (req, res) => {
+    try {
+    
+    } catch (error) {
+    
+    }
+  }
+)
+
 router.get('/api/isloggedin', (req, res) => {
   if (req.user) {
     res.status(200).json(req.user);
