@@ -94,6 +94,19 @@ const sanitize = (req, res, next) => {
   next();
 }
 
+const isValidLength = (field, fmin, fmax) => {
+  return (validator.isLength(field, {min: fmin, max: fmax}));
+}
+
+const isValidEmail = (email) => {
+  return (validator.isEmail(email) && validator.isLength(req.body.email, {min: 3, max: 128}));
+}
+
+const isValidPassword = (password) => {
+  return (isValidLength(password, 6, 24));
+}
+
+
 // ROUTES
 router.post('/api/login', 
   (req, res, next) => {
