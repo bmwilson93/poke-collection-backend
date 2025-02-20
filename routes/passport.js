@@ -84,6 +84,16 @@ passport.use(new localStrategy({usernameField: 'email'}, async (username, passwo
 
 
 
+// Helper functions
+const sanitize = (req, res, next) => {
+  // sanitize the properties in the request body
+  let props = Object.keys(req?.body) || [];
+  props.forEach(prop => {
+    req.body[prop] = validator.trim(validator.escape(req.body.email));
+  })
+  next();
+}
+
 // ROUTES
 router.post('/api/login', 
   (req, res, next) => {
