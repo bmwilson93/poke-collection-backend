@@ -112,14 +112,9 @@ const isValidPassword = (password) => {
 router.post('/api/login', 
   sanitize,
   (req, res, next) => {
-    if (!isValidEmail(req?.body?.email)) {
-      return res.status(400).send("The provided email address is not a valid email address.");
-    }
-    if (!isValidPassword(req?.body?.password)) {
-      return res.status(400).send("The provided password is not a valid password.");
-    }
+    if (!isValidEmail(req?.body?.email)) return res.status(400).send("The provided email address is not a valid email address.");
+    if (!isValidPassword(req?.body?.password)) return res.status(400).send("The provided password is not a valid password.");
     next();
-
   },
   passport.authenticate('local', { failureRedirect: '/api/login-failure' }),
   (req, res) => {
@@ -132,25 +127,13 @@ router.post('/api/login-failure', (req, res) => {
 })
 
 router.post('/api/register', 
+  sanitize,
   (req, res, next) => {
-    //sanitize input
-    req.body.email = validator.trim(validator.escape(req.body.email));
-    req.body.username = validator.trim(validator.escape(req.body.username));
-    req.body.password = validator.trim(validator.escape(req.body.password));
-
-    console.log(req.body)
-
-    // check email and password with validator
-    // if req.body.email is not email res with error
-    if (!validator.isEmail(req.body.email) || !validator.isLength(req.body.email, {min: 1, max: 128})) {
-      res.status(400).send("Provided email is either too long, or not an email address.");
-    } else if (!validator.isLength(req.body.username, {min: 1, max: 64})) {
-      res.status(400).send("Provided username is either too short, or too long.");
-    } else if (!validator.isLength(req.body.password, {min: 6, max: 20})) {
-      res.status(400).send('Provided password is either too short, or too long.')
-    }else {
-      next();
-    }
+    // Validate the provided email, username, and password before proceeding
+    if (!isValidEmail(req?.body?.email)) return res.status(400).send("The provided email address is not a valid email address.");
+    if (!isLength(req?.body?.username, 3, 64)) return res.status(400).send("Your provided username is either too long, or too short.");
+    if (!isValidPassword(req?.body?.password)) return res.status(400).send("The provided password is not a valid password.");
+    next();
   },
   async (req, res) => {
   const { email, username, password } = req.body;
@@ -194,22 +177,14 @@ router.post('/api/logout', (req, res) => {
   });
 })
 
-router.post('/api/update-email', (req, res, next) => {
-    //sanitize input
-    req.body.email = validator.trim(validator.escape(req.body.email));
-    req.body.newEmail = validator.trim(validator.escape(req.body.newEmail));
-    req.body.password = validator.trim(validator.escape(req.body.password));
-
-    // check email and password with validator
-    if (!validator.isEmail(req.body.email) || !validator.isLength(req.body.email, {min: 1, max: 128})) {
-      res.status(400).send("Provided email is either too long, or not an email address.");
-    } else if (!validator.isEmail(req.body.newEmail) || !validator.isLength(req.body.newEmail, {min: 1, max: 128})) {
-      res.status(400).send("Provided email is either too long, or not an email address.");
-    } else if (!validator.isLength(req.body.password, {min: 6, max: 20})) {
-      res.status(400).send('Provided password is either too short, or too long.')
-    }else {
-      next();
-    }
+router.post('/api/update-email', 
+  sanitize,
+  (req, res, next) => {
+    // Validate the provided email, new email, and password before proceeding
+    if (!isValidEmail(req?.body?.email)) return res.status(400).send("The provided email address is not a valid email address.");
+    if (!isValidEmail(req?.body?.newEmail)) return res.status(400).send("Your provided username is either too long, or too short.");
+    if (!isValidPassword(req?.body?.password)) return res.status(400).send("The provided password is not a valid password.");
+    next();
   },
   async (req, res) => {
     try {
