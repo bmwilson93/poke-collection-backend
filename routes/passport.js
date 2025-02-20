@@ -71,6 +71,7 @@ passport.use(new localStrategy({usernameField: 'email'}, async (username, passwo
         delete user.password;
         return done(null, user); // changed user.email to user
       } else { //  password wrong
+        console.log("Wrong password")
         return done(null, false);
       }
     } else { // no user found
@@ -89,17 +90,17 @@ const sanitize = (req, res, next) => {
   // sanitize the properties in the request body
   let props = Object.keys(req?.body) || [];
   props.forEach(prop => {
-    req.body[prop] = validator.trim(validator.escape(req.body.email));
-  })
+    req.body[prop] = validator.trim(validator.escape(req.body[prop]));
+  });
   next();
 }
 
 const isValidLength = (field, fmin, fmax) => {
-  return (validator.isLength(field, {min: fmin, max: fmax}));
+  return (validator.isLength(field, {min: 6, max: 24}));
 }
 
 const isValidEmail = (email) => {
-  return (validator.isEmail(email) && validator.isLength(req.body.email, {min: 3, max: 128}));
+  return (validator.isEmail(email) && validator.isLength(email, {min: 3, max: 128}));
 }
 
 const isValidPassword = (password) => {
@@ -109,37 +110,26 @@ const isValidPassword = (password) => {
 
 // ROUTES
 router.post('/api/login', 
+  sanitize,
   (req, res, next) => {
-    // console.log("Starting at login route, body:")
-    // console.log(req.body);
-
-    // console.log();
-
-    // trim email and password
-    validator.trim(req.body.email);
-    validator.trim(req.body.password);
-
-    // sanitize the email and password
-    req.body.email = validator.escape(req.body.email);
-    req.body.password = validator.escape(req.body.password);
-
-    // check email and password with validator
-    // if req.body.email is not email res with error
-    if (!validator.isEmail(req.body.email)) {
-      res.status(400).send();
-    } else if (validator.isEmpty(req.body.password)) {
-      res.status(400).send();
-    } else {
-      next();
+    if (!isValidEmail(req?.body?.email)) {
+      return res.status(400).send("The provided email address is not a valid email address.");
     }
+    if (!isValidPassword(req?.body?.password)) {
+      return res.status(400).send("The provided password is not a valid password.");
+    }
+    next();
+
   },
-  passport.authenticate('local', { failureRedirect: '/api/login' }),
+  passport.authenticate('local', { failureRedirect: '/api/login-failure' }),
   (req, res) => {
-    console.log("Running after authenticate")
-    console.log(req.user);
-    res.json(req.user)
+    return res.json(req.user)
   }
 )
+
+router.post('/api/login-failure', (req, res) => {
+  return res.status(400).send("There was an issue with logging in. Either your email or password was incorrect.");
+})
 
 router.post('/api/register', 
   (req, res, next) => {
