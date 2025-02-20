@@ -221,9 +221,29 @@ router.post('/api/change-password',
   },
   async (req, res) => {
     try {
-    
+      const user = await findUser(req.body.email);
+      if (user) {
+
+        if (bcrypt.compareSync(req.body.password, user.password)) { // password correct
+
+          // Update the user's password
+          const updatedUser = await updateUserPassword(user, req.body.newPassword);
+          if (updatedUser) {
+            res.status(200).json(updatedUser);
+          } else {
+            res.status(400).send("There was an error with updating your password.")
+          }
+
+
+        } else { //  password wrong
+          res.status(400).send("Your password was incorrect.");
+        }
+      } else {
+        res.status(400).send("No user was found with the provided email.")
+      }
     } catch (error) {
-    
+      console.log(error);
+      res.status(500).send("There was a server error with updating your password.");
     }
   }
 )
