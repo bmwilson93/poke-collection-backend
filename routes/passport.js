@@ -11,7 +11,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 // add database user functions here
-const { findUser, addUser, updateUserEmail } = require('../database/users.js');
+const { findUser, addUser, updateUserEmail, updateUserPassword } = require('../database/users.js');
 
 router.use(passport.initialize());
 router.use(passport.session());
