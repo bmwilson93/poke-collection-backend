@@ -61,4 +61,28 @@ try {
 }
 }
 
-module.exports = { findUser, addUser, updateUserEmail }
+const updateUserPassword = async (user, newPassword) => {
+  try {
+    // Update the user password
+    let result = await db.query(
+      'UPDATE users SET password = $1 WHERE email = $2;',
+      [newPassword, user]
+    );
+    if (result.rowCount) {
+      // Get the user object to return now that password was updated
+      let updatedUser = await db.query(
+        'SELECT email, username, collection FROM users JOIN collections ON users.id = collections.user_id WHERE users.email=$1;',
+        [newEmail]
+      );
+      updatedUser = updatedUser.rows[0];
+      return updatedUser;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+module.exports = { findUser, addUser, updateUserEmail, updateUserPassword }
