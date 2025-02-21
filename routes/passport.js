@@ -226,8 +226,11 @@ router.post('/api/change-password',
 
         if (bcrypt.compareSync(req.body.password, user.password)) { // password correct
 
-          // Update the user's password
-          const updatedUser = await updateUserPassword(user, req.body.newPassword);
+          // hash the new password and then updated the users current password
+          const salt = bcrypt.genSaltSync(saltRounds);
+          const hash = bcrypt.hashSync(req.body.newPassword, salt);
+
+          const updatedUser = await updateUserPassword(user, hash);
           if (updatedUser) {
             res.status(200).json(updatedUser);
           } else {
