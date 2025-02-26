@@ -200,7 +200,7 @@ router.post('/api/update-email',
           }
 
         } else { //  password wrong
-          res.status(400).send("Your password was incorrect.");
+          res.status(400).send("Couldn't update email. The password entered was incorrect.");
         }
       } else {
         res.status(400).send("No user was found with the provided email.")
@@ -239,7 +239,7 @@ router.post('/api/change-password',
 
 
         } else { //  password wrong
-          res.status(400).send("Your password was incorrect.");
+          res.status(400).send("Couldn't update password. The current password entered was incorrect.");
         }
       } else {
         res.status(400).send("No user was found with the provided email.")
