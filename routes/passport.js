@@ -140,7 +140,7 @@ router.post('/api/register',
   try {
     const user = await findUser(email);
     if (user) { // email already in use
-      res.status(400).send("Email already used!");
+      res.status(400).send("The provided email is already in use! Please try again.");
     } else { // email not used, add new user
       console.log('Adding new user');
 
