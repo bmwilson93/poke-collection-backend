@@ -104,7 +104,8 @@ const isValidEmail = (email) => {
 }
 
 const isValidPassword = (password) => {
-  return (isValidLength(password, 6, 24));
+  const pwregex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,20}$/;
+  return (isValidLength(password, 6, 24) && pwregex.test(password));
 }
 
 
@@ -130,9 +131,16 @@ router.post('/api/register',
   sanitize,
   (req, res, next) => {
     // Validate the provided email, username, and password before proceeding
-    if (!isValidEmail(req?.body?.email)) return res.status(400).send("The provided email address is not a valid email address.");
-    if (!isLength(req?.body?.username, 3, 64)) return res.status(400).send("Your provided username is either too long, or too short.");
-    if (!isValidPassword(req?.body?.password)) return res.status(400).send("The provided password is not a valid password.");
+    if (!isValidEmail(req?.body?.email)) {
+      return res.status(400).json({error: "The provided email address is not a valid email address."})
+    }
+    if (!isValidLength(req?.body?.username, 3, 64)) {
+      return res.status(400).json({error: "Your provided username is either too long, or too short."})
+    }
+    if (!isValidPassword(req?.body?.password)) {
+      console.log("Password error")
+      return res.status(400).json({error: "The provided password is not a valid password."})
+    }
     next();
   },
   async (req, res) => {
