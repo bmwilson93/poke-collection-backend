@@ -113,8 +113,8 @@ const isValidPassword = (password) => {
 router.post('/api/login', 
   sanitize,
   (req, res, next) => {
-    if (!isValidEmail(req?.body?.email)) return res.status(400).send("The provided email address is not a valid email address.");
-    if (!isValidPassword(req?.body?.password)) return res.status(400).send("The provided password is not a valid password.");
+    if (!isValidEmail(req?.body?.email)) return res.status(400).json({error: "The provided email address is not a valid email address."})
+    if (!isValidPassword(req?.body?.password)) return res.status(400).json({error: "The provided password is not a valid password."})
     next();
   },
   passport.authenticate('local', { failureRedirect: '/api/login-failure' }),
@@ -124,7 +124,7 @@ router.post('/api/login',
 )
 
 router.post('/api/login-failure', (req, res) => {
-  return res.status(400).send("There was an issue with logging in. Either your email or password was incorrect.");
+  return res.status(401).json({error: "Invalid email or password."});
 })
 
 router.post('/api/register', 
@@ -135,7 +135,7 @@ router.post('/api/register',
       return res.status(400).json({error: "The provided email address is not a valid email address."})
     }
     if (!isValidLength(req?.body?.username, 3, 64)) {
-      return res.status(400).json({error: "Your provided username is either too long, or too short."})
+      return res.status(400).json({error: "Your provided username is either too long, or too short. The username must be 3 to 64 characters."})
     }
     if (!isValidPassword(req?.body?.password)) {
       return res.status(400).json({error: "The provided password is not a valid password."})
