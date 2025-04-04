@@ -138,7 +138,6 @@ router.post('/api/register',
       return res.status(400).json({error: "Your provided username is either too long, or too short."})
     }
     if (!isValidPassword(req?.body?.password)) {
-      console.log("Password error")
       return res.status(400).json({error: "The provided password is not a valid password."})
     }
     next();
@@ -148,7 +147,7 @@ router.post('/api/register',
   try {
     const user = await findUser(email);
     if (user) { // email already in use
-      res.status(400).send("The provided email is already in use! Please try again.");
+      res.status(409).json({error: "An account with that email already exists. Please try another email."});
     } else { // email not used, add new user
       console.log('Adding new user');
 
@@ -166,6 +165,8 @@ router.post('/api/register',
       console.log("User:")
       console.log(user);
 
+      // Add a check if user is valid, if not respond with error
+
       // call passport.js login function to login the new user
       req.login(user, (err) => {
         console.log("New user added");
@@ -174,7 +175,7 @@ router.post('/api/register',
     }
   } catch (error) {
     console.log(error);
-    res.status(500).send("Error with adding new user");
+    res.status(500).json({error: "There was an error with creating an account. Please try again."});
   }
 })
 
