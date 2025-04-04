@@ -181,7 +181,7 @@ router.post('/api/register',
 router.post('/api/logout', (req, res) => {
   req.logout((err) => {
     if (err) {console.log(err)}
-    res.status(200).send();
+    res.status(204).end();
   });
 })
 
