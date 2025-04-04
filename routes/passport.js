@@ -189,9 +189,9 @@ router.post('/api/update-email',
   sanitize,
   (req, res, next) => {
     // Validate the provided email, new email, and password before proceeding
-    if (!isValidEmail(req?.body?.email)) return res.status(400).send("The provided email address is not a valid email address.");
-    if (!isValidEmail(req?.body?.newEmail)) return res.status(400).send("Your provided username is either too long, or too short.");
-    if (!isValidPassword(req?.body?.password)) return res.status(400).send("The provided password is not a valid password.");
+    if (!isValidEmail(req?.body?.email)) return res.status(400).json({error: "The email you provided is not a valid email address."});
+    if (!isValidEmail(req?.body?.newEmail)) return res.status(400).json({error: "The new email you provided is not a valid email address."});
+    if (!isValidPassword(req?.body?.password)) return res.status(400).json({error: "The password you entered is not valid."});
     next();
   },
   async (req, res) => {
@@ -204,18 +204,18 @@ router.post('/api/update-email',
           if (updatedUser) {
             res.status(200).json(updatedUser);
           } else {
-            res.status(400).send("There was an error with updating your email.")
+            res.status(500).json({error: "There was an error with updating your email."})
           }
 
         } else { //  password wrong
-          res.status(400).send("Couldn't update email. The password entered was incorrect.");
+          res.status(401).json({error: "Invalid email or password."});
         }
-      } else {
-        res.status(400).send("No user was found with the provided email.")
+      } else { // user doesn't exist
+        res.status(401).json({error: "Invalid email or password."})
       }
     } catch (error) {
       console.log(error);
-      res.status(500).send("There was a server error with updating your email.");
+      res.status(500).json({error: "There was a server error with updating your email."});
     }
   }
 )
