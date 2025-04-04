@@ -165,17 +165,19 @@ router.post('/api/register',
       console.log("User:")
       console.log(user);
 
-      // Add a check if user is valid, if not respond with error
+      if (!user) {
+        return res.json({error: "There was an error with creating an account. Please try again."});
+      }
 
       // call passport.js login function to login the new user
       req.login(user, (err) => {
         console.log("New user added");
-        res.json(user);
+        return res.json(user);
       })
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({error: "There was an error with creating an account. Please try again."});
+    return res.status(500).json({error: "There was an error with creating an account. Please try again."});
   }
 })
 
