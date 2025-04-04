@@ -223,8 +223,8 @@ router.post('/api/update-email',
 router.post('/api/change-password', 
   sanitize,
   (req, res, next) => {
-  if (!isValidPassword(req?.body?.password)) return res.status(400).send("Your password is either too short or too long.");
-  if (!isValidPassword(req?.body?.newPassword)) return res.status(400).send("Your new password is either too short or too long.");
+  if (!isValidPassword(req?.body?.password)) return res.status(400).json({error: "The password you entered is either too short or too long."});
+  if (!isValidPassword(req?.body?.newPassword)) return res.status(400).json({error: "The new password you entered is either too short or too long."});
   next();
   },
   async (req, res) => {
@@ -242,19 +242,19 @@ router.post('/api/change-password',
           if (updatedUser) {
             res.status(200).json(updatedUser);
           } else {
-            res.status(400).send("There was an error with updating your password.")
+            res.status(500).json({error: "There was an error with updating your password."})
           }
 
 
         } else { //  password wrong
-          res.status(400).send("Couldn't update password. The current password entered was incorrect.");
+          res.status(401).json({error: "Invalid email or password."});
         }
-      } else {
-        res.status(400).send("No user was found with the provided email.")
+      } else { // user doesn't exist
+        res.status(401).json({error: "Invalid email or password."})
       }
     } catch (error) {
       console.log(error);
-      res.status(500).send("There was a server error with updating your password.");
+      res.status(500).json({error: "There was a server error with updating your password."});
     }
   }
 )
