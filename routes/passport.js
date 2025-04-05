@@ -119,7 +119,7 @@ router.post('/api/login',
   },
   passport.authenticate('local', { failureRedirect: '/api/login-failure' }),
   (req, res) => {
-    return res.json(req.user)
+    return res.json({user: req.user});
   }
 )
 
@@ -166,13 +166,13 @@ router.post('/api/register',
       console.log(user);
 
       if (!user) {
-        return res.json({error: "There was an error with creating an account. Please try again."});
+        return res.status(500).json({error: "There was an error with creating an account. Please try again."});
       }
 
       // call passport.js login function to login the new user
       req.login(user, (err) => {
         console.log("New user added");
-        return res.json(user);
+        return res.json({user: user});
       })
     }
   } catch (error) {
@@ -205,7 +205,7 @@ router.post('/api/update-email',
           // Update the user's email
           const updatedUser = await updateUserEmail(user, req.body.newEmail);
           if (updatedUser) {
-            res.status(200).json(updatedUser);
+            res.status(200).json({user: updatedUser});
           } else {
             res.status(500).json({error: "There was an error with updating your email."})
           }
@@ -243,7 +243,7 @@ router.post('/api/change-password',
 
           const updatedUser = await updateUserPassword(user, hash);
           if (updatedUser) {
-            res.status(200).json(updatedUser);
+            res.status(200).json({user: updatedUser});
           } else {
             res.status(500).json({error: "There was an error with updating your password."})
           }
@@ -264,7 +264,7 @@ router.post('/api/change-password',
 
 router.get('/api/isloggedin', (req, res) => {
   if (req.user) {
-    res.status(200).json(req.user);
+    res.status(200).json({user: req.user});
   } else {
     res.status(204).end();
   }
