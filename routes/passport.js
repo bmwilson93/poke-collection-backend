@@ -266,7 +266,7 @@ router.get('/api/isloggedin', (req, res) => {
   if (req.user) {
     res.status(200).json(req.user);
   } else {
-    res.status(204).send();
+    res.status(204).end();
   }
 })
 
