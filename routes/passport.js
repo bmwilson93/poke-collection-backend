@@ -123,7 +123,8 @@ router.post('/api/login',
   }
 )
 
-router.post('/api/login-failure', (req, res) => {
+router.get('/api/login-failure', (req, res) => {
+  console.log("login failure")
   return res.status(401).json({error: "Invalid email or password."});
 })
 
