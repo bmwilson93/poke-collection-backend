@@ -203,6 +203,10 @@ router.post('/api/update-email',
       const user = await findUser(req.body.email);
       if (user) {
         if (bcrypt.compareSync(req.body.password, user.password)) { // password correct
+
+          const newEmailExists = await findUser(req?.body?.newEmail);
+          if (newEmailExists) return res.status(409).json({error: "An account with that email already exists. Please try another email."})
+
           // Update the user's email
           const updatedUser = await updateUserEmail(user, req.body.newEmail);
           if (updatedUser) {
