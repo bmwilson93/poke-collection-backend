@@ -13,8 +13,8 @@ router.use('/', (req, res, next) => {
 })
 
 router.post('/add', async (req, res) => {
- req.user.collection = await addCard(req.body, req.user.collection, req.session.passport.user.id);
- res.json({user: req.user});
+    req.user.collection = await addCard(req.body, req.user.collection, req.session.passport.user.id);
+    res.json({user: req.user});
 })
 
 router.post('/remove', async (req, res) => {
