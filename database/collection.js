@@ -109,29 +109,38 @@ const removeCard = async (card, collection, user_id) => {
       // card not is collection, just return collection
       return collection;
 
-    } else { // card exists, check if the variant exists
+    } else { // card exists, check if it has quantities
       // TODO - Update to check if quantities property exists, if not return collection
       // If quantities property exists, continue to check variants and remove
-      const variantIndex = checkVariantInCollection(card.variant, collection.sets[setIndex].cards[cardIndex].quantities);
-      if (variantIndex < 0) {
+
+      if (!Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'quantities')) {
+        // card doesn't have quantities to remove, just return collection
         return collection;
 
-      } else { // variant exists, decrease qty or remove if only 1
-        if (collection.sets[setIndex].cards[cardIndex].quantities[variantIndex][card.variant] > 1) {
-          collection.sets[setIndex].cards[cardIndex].quantities[variantIndex][card.variant] -= 1;
-
-        } else { // only 1 quantity, remove the card
-          if (collection.sets[setIndex].cards[cardIndex].quantities.length > 1) { // More than 1 variant
-            // must remove the variant
-            collection.sets[setIndex].cards[cardIndex].quantities.splice(variantIndex, 1)
-          } else {
-            // TODO - Update, don't remove the whole card just yet. 
-            // TODO - Check if incoming/wishlist exist, if yes, then only remove the quantities property
-            // If no, then remove the whole card
-            collection.sets[setIndex].cards.splice(cardIndex, 1);
+      } else { // card has quantities, check if the variant exists
+        const variantIndex = checkVariantInCollection(card.variant, collection.sets[setIndex].cards[cardIndex].quantities);
+        if (variantIndex < 0) {
+          return collection;
+  
+        } else { // variant exists, decrease qty or remove if only 1
+          if (collection.sets[setIndex].cards[cardIndex].quantities[variantIndex][card.variant] > 1) {
+            collection.sets[setIndex].cards[cardIndex].quantities[variantIndex][card.variant] -= 1;
+  
+          } else { // only 1 quantity, remove the variant/quantities/card
+            if (collection.sets[setIndex].cards[cardIndex].quantities.length > 1) { // More than 1 variant
+              // remove just the variant
+              collection.sets[setIndex].cards[cardIndex].quantities.splice(variantIndex, 1)
+              
+            } else { // only the one variant, check if the card has any incoming or wishlist before removing
+              if (Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'incoming') || Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'wishlist')) {
+                // object has incoming or wishlist, just remove the quantities property
+                delete collection.sets[setIndex].cards[cardIndex].quantities
+              } else { // no other properties, remove the whole card
+                collection.sets[setIndex].cards.splice(cardIndex, 1);
+              }
+            }
           }
         }
-
       }
     }
   }
