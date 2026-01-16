@@ -130,7 +130,7 @@ const removeCard = async (card, collection, user_id) => {
             if (collection.sets[setIndex].cards[cardIndex].quantities.length > 1) { // More than 1 variant
               // remove just the variant
               collection.sets[setIndex].cards[cardIndex].quantities.splice(variantIndex, 1)
-              
+
             } else { // only the one variant, check if the card has any incoming or wishlist before removing
               if (Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'incoming') || Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'wishlist')) {
                 // object has incoming or wishlist, just remove the quantities property
@@ -151,7 +151,13 @@ const removeCard = async (card, collection, user_id) => {
 
 
 // TODO - Add a function for adding a card/variant as incoming
+const addIncoming = async () => {
+
+}
 
 // TODO - Add a function for removing a card/variant as incoming
+const removeIncoming = async () => {
+  
+}
 
 module.exports = { addCard, removeCard }
