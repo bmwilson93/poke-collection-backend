@@ -148,8 +148,54 @@ const removeCard = async (card, collection, user_id) => {
 
 
 // TODO - Add a function for adding a card/variant as incoming
-const addIncoming = async () => {
+const addIncoming = async (card, collection, user_id) => {
+  const setIndex = checkSetInCollection(card.set_id, collection.sets);
+  if (setIndex < 0) {
+    // set not found, add the set, card, and incoming all together
+    collection.sets.push(
+      {
+        "set_id": card.set_id,
+        "cards": [
+          {
+            "card_id": card.card_id,
+            "incoming": {
+              "card_image": card.card_image,
+              "variants": [
+                {[card.variant]: 1}
+              ]
+            }
+          }
+        ]
+      }
+    );
 
+  } else { // Set exists in collection, check if card exists
+    const cardIndex = checkCardInCollection(card.card_id, collection.set[setIndex].cards);
+    if (cardIndex < 0) {
+      // card not in collection, add a new card object and set the incoming object
+      collection.sets[setIndex].cards.push(
+        {"card_id": card.card_id, "incoming": {"card_image": card.card_image, "variants": [{[card.variant]: 1}]}}
+      )
+    } else { // Set and card both exists, check if incoming property exists
+      if (Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'incoming')) {
+        // card has incoming already, check the variant
+        let variantIndex = checkVariantInCollection(card.variant, collection.sets[setIndex].cards[cardIndex].incoming.variants);
+        if (variantIndex < 0) {
+          // does not have the variant incoming, add it
+          collection.sets[setIndex].cards[cardIndex].incoming.variants.push({[card.variant]: 1});
+        } else {
+          // variant is already incoming return collection
+          return collection
+        }
+      } else {
+        // Card exists, but does not have incoming property
+        collection.sets[setIndex].cards[cardIndex].incoming = {"card_image": card.card_image, "variants": [{[card.variant]: 1}]}
+      }
+    }
+  }
+
+  const updatedCollection = updateCollectionInDB(collection, user_id);
+  return updatedCollection;
 }
 
 // TODO - Add a function for removing a card/variant as incoming
