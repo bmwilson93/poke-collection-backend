@@ -110,9 +110,6 @@ const removeCard = async (card, collection, user_id) => {
       return collection;
 
     } else { // card exists, check if it has quantities
-      // TODO - Update to check if quantities property exists, if not return collection
-      // If quantities property exists, continue to check variants and remove
-
       if (!Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'quantities')) {
         // card doesn't have quantities to remove, just return collection
         return collection;
