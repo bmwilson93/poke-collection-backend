@@ -157,7 +157,7 @@ const addIncoming = async () => {
 
 // TODO - Add a function for removing a card/variant as incoming
 const removeIncoming = async () => {
-  
+
 }
 
-module.exports = { addCard, removeCard }
+module.exports = { addCard, removeCard, addIncoming, removeIncoming }
