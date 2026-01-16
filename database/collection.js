@@ -73,14 +73,18 @@ const addCard = async (card, collection, user_id) => {
         {"card_id": card.card_id, "quantities": [{[card.variant]: 1}]}
       );
 
-    } else { // set and card both exist in collection, check the variant
-      let variantIndex = checkVariantInCollection(card.variant, collection.sets[setIndex].cards[cardIndex].quantities);
-      if (variantIndex < 0) {
-        // does not have the varient collected, add
-        collection.sets[setIndex].cards[cardIndex].quantities.push({[card.variant]: 1})
-      } else {
-        // varient already in collection, increase qty
-        collection.sets[setIndex].cards[cardIndex].quantities[variantIndex][card.variant] += 1;
+    } else { // set and card both exist in collection, check if quantities exsits
+      if (Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'quantities')) {
+        let variantIndex = checkVariantInCollection(card.variant, collection.sets[setIndex].cards[cardIndex].quantities);
+        if (variantIndex < 0) {
+          // does not have the varient collected, add
+          collection.sets[setIndex].cards[cardIndex].quantities.push({[card.variant]: 1})
+        } else {
+          // varient already in collection, increase qty
+          collection.sets[setIndex].cards[cardIndex].quantities[variantIndex][card.variant] += 1;
+        }
+      } else { // Card exists, but doesn't have a quantities property. Add a quantities property with the variant
+        collection.sets[setIndex].cards[cardIndex].quantities = [{[card.variant]: 1}]
       }
     }
   }
@@ -106,6 +110,8 @@ const removeCard = async (card, collection, user_id) => {
       return collection;
 
     } else { // card exists, check if the variant exists
+      // TODO - Update to check if quantities property exists, if not return collection
+      // If quantities property exists, continue to check variants and remove
       const variantIndex = checkVariantInCollection(card.variant, collection.sets[setIndex].cards[cardIndex].quantities);
       if (variantIndex < 0) {
         return collection;
@@ -113,15 +119,19 @@ const removeCard = async (card, collection, user_id) => {
       } else { // variant exists, decrease qty or remove if only 1
         if (collection.sets[setIndex].cards[cardIndex].quantities[variantIndex][card.variant] > 1) {
           collection.sets[setIndex].cards[cardIndex].quantities[variantIndex][card.variant] -= 1;
+
         } else { // only 1 quantity, remove the card
-          if (collection.sets[setIndex].cards[cardIndex].quantities.length > 1) {
-            // remove the variant
+          if (collection.sets[setIndex].cards[cardIndex].quantities.length > 1) { // More than 1 variant
+            // must remove the variant
             collection.sets[setIndex].cards[cardIndex].quantities.splice(variantIndex, 1)
           } else {
-            // remove the whole card
+            // TODO - Update, don't remove the whole card just yet. 
+            // TODO - Check if incoming/wishlist exist, if yes, then only remove the quantities property
+            // If no, then remove the whole card
             collection.sets[setIndex].cards.splice(cardIndex, 1);
           }
         }
+
       }
     }
   }
@@ -130,5 +140,9 @@ const removeCard = async (card, collection, user_id) => {
   return updatedCollection;
 }
 
+
+// TODO - Add a function for adding a card/variant as incoming
+
+// TODO - Add a function for removing a card/variant as incoming
 
 module.exports = { addCard, removeCard }
