@@ -1,7 +1,7 @@
 const express = require("express"),
       router = express.Router();
 
-const { addCard, removeCard, addIncoming } = require('../database/collection.js');
+const { addCard, removeCard, addIncoming, removeIncoming } = require('../database/collection.js');
 
 // Check if user is logged in first
 router.use('/', (req, res, next) => {
@@ -27,6 +27,9 @@ router.post('/incoming/add', async (req, res) => {
   res.json({user: req.user});
 })
 
-// TODO - Add a route for remove incoming /incoming/remove
+router.post('/incoming/remove', async (req, res) => {
+  req.user.collection = await removeIncoming(req.body, req.user.collection, req.session.passport.user.id);
+  res.json({user: req.user});
+})
 
 module.exports = router;
