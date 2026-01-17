@@ -169,7 +169,7 @@ const addIncoming = async (card, collection, user_id) => {
     );
 
   } else { // Set exists in collection, check if card exists
-    const cardIndex = checkCardInCollection(card.card_id, collection.set[setIndex].cards);
+    const cardIndex = checkCardInCollection(card.card_id, collection.sets[setIndex].cards);
     if (cardIndex < 0) {
       // card not in collection, add a new card object and set the incoming object
       collection.sets[setIndex].cards.push(
@@ -198,12 +198,12 @@ const addIncoming = async (card, collection, user_id) => {
 }
 
 
-const removeIncoming = async () => {
-  const setIndex = checkSetInCollection(card.set, collection.sets);
+const removeIncoming = async (card, collection, user_id) => {
+  const setIndex = checkSetInCollection(card.set_id, collection.sets);
   if (setIndex < 0) {
     return collection
   } else {
-    const cardIndex = checkCardInCollection(card.card_id, collection.set[setIndex.cards]);
+    const cardIndex = checkCardInCollection(card.card_id, collection.sets[setIndex].cards);
     if (cardIndex < 0) {
       return collection;
     } else {
