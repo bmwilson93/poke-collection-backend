@@ -147,7 +147,6 @@ const removeCard = async (card, collection, user_id) => {
 }
 
 
-// TODO - Add a function for adding a card/variant as incoming
 const addIncoming = async (card, collection, user_id) => {
   const setIndex = checkSetInCollection(card.set_id, collection.sets);
   if (setIndex < 0) {
@@ -198,9 +197,45 @@ const addIncoming = async (card, collection, user_id) => {
   return updatedCollection;
 }
 
-// TODO - Add a function for removing a card/variant as incoming
-const removeIncoming = async () => {
 
+const removeIncoming = async () => {
+  const setIndex = checkSetInCollection(card.set, collection.sets);
+  if (setIndex < 0) {
+    return collection
+  } else {
+    const cardIndex = checkCardInCollection(card.card_id, collection.set[setIndex.cards]);
+    if (cardIndex < 0) {
+      return collection;
+    } else {
+      // card exists, check if card has incoming property
+      if (!Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'incoming')) {
+        // no incoming property, just return collection
+        return collection;
+      } else {
+        // card has incoming, check the variants
+        const variantIndex = checkVariantInCollection(card.variant, collection.sets[setIndex].cards[cardIndex].incoming.variants);
+        if (variantIndex < 0) {
+          return collection;
+        } else {
+          // variants exists, if only variant remove incoming, if no other properties, remove card
+          if (collection.sets[setIndex].cards[cardIndex].incoming.variants.length > 1) {
+            // multiple variants, remove just the one
+            collection.sets[setIndex].cards[cardIndex].incoming.variants.splice(variantIndex, 1)
+          } else {
+            // only the one variant, check if card has quantities or wishlist before removing
+            if (Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'quantities') || Object.hasOwn(collection.sets[setIndex].cards[cardIndex], 'wishlist')) {
+              delete collection.sets[setIndex].cards[cardIndex].incoming;
+            } else { // no other properties, remove the whole card
+              collection.sets[setIndex].cards.splice(cardIndex, 1);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const updatedCollection = updateCollectionInDB(collection, user_id);
+  return updatedCollection;
 }
 
 module.exports = { addCard, removeCard, addIncoming, removeIncoming }
