@@ -238,4 +238,11 @@ const removeIncoming = async (card, collection, user_id) => {
   return updatedCollection;
 }
 
-module.exports = { addCard, removeCard, addIncoming, removeIncoming }
+const updateCollectionValue = async (value, collection, user_id) => {
+  collection.collection_value = value.value;
+
+  const updatedCollection = updateCollectionInDB(collection, user_id);
+  return updatedCollection;
+}
+
+module.exports = { addCard, removeCard, addIncoming, removeIncoming, updateCollectionValue }
