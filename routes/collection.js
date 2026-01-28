@@ -1,7 +1,7 @@
 const express = require("express"),
       router = express.Router();
 
-const { addCard, removeCard, addIncoming, removeIncoming } = require('../database/collection.js');
+const { addCard, removeCard, addIncoming, removeIncoming, updateCollectionValue } = require('../database/collection.js');
 
 // Check if user is logged in first
 router.use('/', (req, res, next) => {
@@ -29,6 +29,11 @@ router.post('/incoming/add', async (req, res) => {
 
 router.post('/incoming/remove', async (req, res) => {
   req.user.collection = await removeIncoming(req.body, req.user.collection, req.session.passport.user.id);
+  res.json({user: req.user});
+})
+
+router.post('/value/update', async (req, res) => {
+  req.user.collection = await updateCollectionValue(req.body, req.user.collection, req.session.passport.user.id);
   res.json({user: req.user});
 })
 
